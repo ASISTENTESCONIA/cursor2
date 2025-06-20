@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1,
+    "email": "admin@admin.com",
+    "username": "Administrador",
+    "password": "admin123",
+    "role": "admin",
+    "isFounder": true,
+    "isActive": true
+  },
+  {
+    "id": 2,
+    "email": "estudiante@premium.com",
+    "username": "Estudiante Premium",
+    "password": "premium123",
+    "role": "student",
+    "isFounder": true,
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "email": "alumno@test.com",
+    "username": "Alumno Test",
+    "password": "test123",
+    "role": "student",
+    "isFounder": false,
+    "isActive": true
+  },
+  {
+    "id": 1749537385966,
+    "email": "usuario@usuario.com",
+    "username": "usuario",
+    "password": "1234",
+    "role": "student",
+    "isFounder": false,
+    "isActive": true,
+    "hasSubscription": false
+  },
+  {
+    "id": 1749790509799,
+    "email": "test@test.com",
+    "username": "testuser",
+    "password": "test123",
+    "role": "student",
+    "isFounder": false,
+    "isActive": true,
+    "hasSubscription": false
+  }
+]
