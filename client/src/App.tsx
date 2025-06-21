@@ -9,7 +9,14 @@ import AssistantDetailPage from '@/pages/AssistantDetailPage';
 import AdminPage from '@/pages/AdminPage';
 import { AuthProvider } from '@/contexts/AuthContext';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (

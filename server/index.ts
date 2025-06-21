@@ -22,45 +22,79 @@ try {
 
 // Session configuration
 app.use(session({
-  secret: 'your-secret-key',
+  secret: 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  cookie: { 
+    secure: false, 
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true
+  }
 }));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from client directory in development
-if (process.env.NODE_ENV !== 'production') {
-  app.use(express.static(path.join(__dirname, '../client')));
-} else {
-  app.use(express.static(path.join(__dirname, '../dist')));
+// CORS for development
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    next();
+  });
 }
 
 // API Routes
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+  res.json({ status: 'OK', message: 'Server is running', timestamp: new Date().toISOString() });
 });
 
 // Auth routes
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Email and password are required' });
+  }
+  
   const user = usersData.find(u => u.email === email && u.password === password);
   
   if (user) {
     req.session.userId = user.id;
-    req.session.user = user;
-    res.json({ success: true, user: { id: user.id, email: user.email, username: user.username, role: user.role, isFounder: user.isFounder } });
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      isFounder: user.isFounder
+    };
+    
+    res.json({ 
+      success: true, 
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        isFounder: user.isFounder
+      }
+    });
   } else {
     res.status(401).json({ success: false, message: 'Invalid credentials' });
   }
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ success: true });
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Could not log out' });
+    }
+    res.clearCookie('connect.sid');
+    res.json({ success: true });
+  });
 });
 
 app.get('/api/auth/me', (req, res) => {
@@ -71,15 +105,18 @@ app.get('/api/auth/me', (req, res) => {
   }
 });
 
-// Serve the main application
-app.get('*', (req, res) => {
-  if (process.env.NODE_ENV !== 'production') {
-    res.sendFile(path.join(__dirname, '../client/index.html'));
-  } else {
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')));
+  
+  // Serve the main application for all non-API routes
+  app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
-  }
-});
+  });
+}
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`👥 Users loaded: ${usersData.length}`);
 });

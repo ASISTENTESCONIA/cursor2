@@ -1,12 +1,14 @@
 {
-  "name": "rest-express",
+  "name": "oposiciones-platform",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
     "build": "vite build",
     "start": "NODE_ENV=production tsx server/index.ts",
-    "dev": "NODE_ENV=development tsx server/index.ts"
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "NODE_ENV=development tsx server/index.ts",
+    "dev:client": "vite"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -48,6 +50,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "concurrently": "^9.1.0",
     "connect-pg-simple": "^10.0.0",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.39.1",
@@ -70,6 +73,7 @@
     "react-hook-form": "^7.55.0",
     "react-icons": "^5.4.0",
     "react-resizable-panels": "^2.1.7",
+    "react-router-dom": "^6.28.0",
     "recharts": "^2.15.2",
     "stripe": "^18.2.1",
     "tailwind-merge": "^2.6.0",
