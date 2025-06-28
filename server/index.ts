@@ -37,15 +37,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS for development
-if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    next();
-  });
-}
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  next();
+});
 
 // API Routes
 app.get('/api/health', (req, res) => {
@@ -113,10 +111,24 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
+} else {
+  // In development, provide a simple response for the root route
+  app.get('/', (req, res) => {
+    res.json({ 
+      message: 'Development server running. Please access the frontend at http://localhost:5173',
+      api: 'http://localhost:5000/api',
+      health: 'http://localhost:5000/api/health'
+    });
+  });
 }
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`👥 Users loaded: ${usersData.length}`);
+  
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`🎯 Frontend should be running on: http://localhost:5173`);
+    console.log(`🔧 API available at: http://localhost:${PORT}/api`);
+  }
 });
